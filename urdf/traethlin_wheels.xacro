@@ -1,0 +1,206 @@
+<?xml version="1.0"?>
+
+<!-- traethlin_wheels.xacro
+
+This file defines a model of the Traethlin robot.
+
+It is derived from the autorally ROS package available at https://github.com/AutoRally.
+
+Lengths are measured in meters, angles are measured in radians, and masses are
+measured in kilograms. All of these values are approximations.
+
+To work with Gazebo, each link must have an inertial element, even if
+the link only serves to connect two joints. To be visible in Gazebo, a link
+must have a collision element. Furthermore, the link must have a Gazebo
+material.
+-->
+<robot name="traethlin" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- The "wheel" macro defines an axle carrier, axle, and wheel. -->
+  <xacro:macro name="wheel" params="lr_prefix fr_prefix lr_reflect tire_width wheel_mass axle_eff_limit wheel_model cant">
+    <link name="${lr_prefix}_${fr_prefix}_axle_carrier">
+      <xacro:null_inertial/>
+    </link>
+
+    <!-- The left and right axles have the same axis so that identical
+         rotation values cause the wheels to rotate in the same direction. -->
+    <joint name="${lr_prefix}_${fr_prefix}_axle" type="continuous">
+      <parent link="${lr_prefix}_${fr_prefix}_axle_carrier"/>
+      <child link="${lr_prefix}_${fr_prefix}_wheel"/>
+      <origin xyz="0 0 0" rpy="${-lr_reflect*degrees_90} 0 0"/><!--rpy="${degrees_90} 0 0"-->
+      <axis xyz="0 0 ${lr_reflect}"/>
+      <limit effort="${axle_eff_limit}" velocity="${axle_vel_limit}"/>
+      <!-- <dynamics damping="0.015" friction="0.0"/> -->
+      <dynamics damping="0.001" friction="0.5"/>
+    </joint>
+
+    <!--<gazebo reference="${lr_prefix}_${fr_prefix}_axle">
+      <dampingFactor>0.8</dampingFactor>
+    </gazebo>-->
+
+    <!--<gazebo reference="${lr_prefix}_rear_wheel">
+      <bullet>
+        <friction>0</friction>
+        <friction2>0</friction2>
+      </bullet>
+    </gazebo>
+
+    <gazebo reference="${lr_prefix}_front_wheel">
+      <bullet>
+        <friction>10</friction>
+        <friction2>10</friction2>
+      </bullet>
+    </gazebo>-->
+
+    <transmission name="${lr_prefix}_${fr_prefix}_axle_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${lr_prefix}_${fr_prefix}_axle">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${lr_prefix}_${fr_prefix}_axle_act">
+        <!-- This hardwareInterface element exists for compatibility
+             with ROS Hydro. -->
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <link name="${lr_prefix}_${fr_prefix}_wheel">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${wheel_model}" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <!-- <geometry>
+          <cylinder radius="${tire_dia/2}" length="${rear_tire_width*0.1}"/>
+        </geometry> -->
+      </visual>
+
+      <!--<collision name="collision">
+        <origin xyz="0 0 0" rpy="${degrees_90} 0 0"/>
+        <geometry>
+          <mesh filename="${wheel_model}" scale="0.632 0.632 0.661"/>
+        </geometry>
+      </collision>-->
+      <collision name="collision">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${tire_dia/2}" length="${rear_tire_width*0.1}"/>
+          <!-- <mesh filename="${wheel_model}" scale="1 1 1"/> -->
+        </geometry>
+      </collision>
+
+      <!--<collision name="collision">
+        <origin xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="${wheel_model}" scale="0.632 0.632 0.661"/>
+        </geometry>
+      </collision>-->
+
+      <xacro:thick_walled_tube_inertial
+          inner_rad="${hub_dia / 2.0}" outer_rad="${tire_dia / 2.0}"
+          height="${tire_width}" mass="${wheel_mass}"/>
+
+
+
+    </link>
+
+    <gazebo reference="${lr_prefix}_${fr_prefix}_wheel">
+      <mu1>10</mu1>
+      <mu2>10</mu2>
+    </gazebo>
+<!--
+  <gazebo reference="${lr_prefix}_${fr_prefix}_wheel">
+    <mu1 value="0.9"/>
+    <mu2 value="0.9"/>
+    <kp value="1e11"/>
+    <kd value="1e11"/>
+    <material>Gazebo/Black</material>
+    <self_collide>false</self_collide>
+    <max_contacts>1</max_contacts>
+    <minDepth>0.005</minDepth>
+  </gazebo>-->
+
+
+  </xacro:macro>
+
+  <!-- Front wheel -->
+  <xacro:macro name="front_wheel"
+               params="lr_prefix fr_prefix lr_reflect fr_reflect tire_width
+                       wheel_mass axle_eff_limit">
+    <xacro:front_shock lr_prefix="${lr_prefix}" fr_prefix="${fr_prefix}"
+                       lr_reflect="${lr_reflect}" fr_reflect="${fr_reflect}"
+                       child="${lr_prefix}_steering_link"/>
+
+    <link name="${lr_prefix}_steering_link">
+      <xacro:null_inertial/>
+    </link>
+
+    <joint name="${lr_prefix}_steering_joint" type="revolute">
+      <parent link="${lr_prefix}_steering_link"/>
+      <child link="${lr_prefix}_${fr_prefix}_axle_carrier"/>
+      <!-- cant the front wheels to improve traction -->
+      <!--<axis xyz="0 ${-lr_reflect*0.09950372}  0.99503719"/>-->
+      <axis xyz="0 0 1"/>
+      <limit lower="${-degrees_45}" upper="${degrees_45}"
+             effort="${servo_stall_torque}" velocity="${servo_no_load_speed}"/>
+    </joint>
+
+    <transmission name="${lr_prefix}_steering_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${lr_prefix}_steering_joint">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${lr_prefix}_steering_act">
+
+        <!-- This hardwareInterface element exists for compatibility
+             with ROS Hydro. -->
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <xacro:wheel lr_prefix="${lr_prefix}" fr_prefix="${fr_prefix}"
+                 lr_reflect="${lr_reflect}" tire_width="${tire_width}"
+                 wheel_mass="${wheel_mass}"
+                 axle_eff_limit="${axle_eff_limit}"
+                 wheel_model="file://$(find traethlin_description)/meshes/wheel.stl"
+                 cant="0.05"/>
+  </xacro:macro>
+
+  <!-- Rear wheel -->
+  <xacro:macro name="rear_wheel"
+               params="lr_prefix fr_prefix lr_reflect fr_reflect tire_width
+                       wheel_mass axle_eff_limit">
+    <xacro:rear_shock lr_prefix="${lr_prefix}" fr_prefix="${fr_prefix}"
+                 lr_reflect="${lr_reflect}" fr_reflect="${fr_reflect}"
+                 child="${lr_prefix}_${fr_prefix}_axle_carrier"/>
+    <xacro:wheel lr_prefix="${lr_prefix}" fr_prefix="${fr_prefix}"
+                 lr_reflect="${lr_reflect}" tire_width="${tire_width}"
+                 wheel_mass="${wheel_mass}"
+                 axle_eff_limit="${axle_eff_limit}"
+                 wheel_model="file://$(find traethlin_description)/meshes/wheel.stl"
+                 cant="-0.03"/>
+  </xacro:macro>
+
+<!--            <contact>
+          <collide_without_contact>0</collide_without_contact>
+          <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+          <collide_bitmask>1</collide_bitmask>
+          <ode>
+            <soft_cfm>0</soft_cfm>
+            <soft_erp>0.2</soft_erp>
+            <kp>1e+13</kp>
+            <kd>1</kd>
+            <max_vel>0.01</max_vel>
+            <min_depth>0</min_depth>
+          </ode>
+          <bullet>
+            <split_impulse>1</split_impulse>
+            <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+            <soft_cfm>0</soft_cfm>
+            <soft_erp>0.2</soft_erp>
+            <kp>1e+13</kp>
+            <kd>1</kd>
+          </bullet>
+        </contact>-->
+</robot>

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<!-- traethlin_shock_absorbers.xacro
+
+This file defines a model of the Traethlin robot.
+
+It is derived from the autorally ROS package available at https://github.com/AutoRally.
+
+Lengths are measured in meters, angles are measured in radians, and masses are
+measured in kilograms. All of these values are approximations.
+
+To work with Gazebo, each link must have an inertial element, even if
+the link only serves to connect two joints. To be visible in Gazebo, a link
+must have a collision element. Furthermore, the link must have a Gazebo
+material.
+-->
+<robot name="traethlin" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- Shock absorbers -->
+  <xacro:macro name="front_shock"
+               params="lr_prefix fr_prefix lr_reflect fr_reflect child">
+    <joint name="${lr_prefix}_${fr_prefix}_shock" type="fixed"> <!--used to be prismatic-->
+      <parent link="chassis_link"/>
+      <child link="${child}"/>
+
+<!--      <origin xyz="${fr_reflect * chassis_cm_to_front_shock}
+        ${lr_reflect * ((hex_hub_dist / 2) - 0.01)}
+      ${-chassis_cm_height + front_shock_z_offset/2}"/>-->
+      <origin xyz="${fr_reflect * chassis_cm_to_front_shock}
+                   ${lr_reflect * ((hex_hub_dist / 2) - 0.01)}
+                   ${-front_shock_z_offset}"/>
+      <axis xyz="0 0 -1"/>
+      <limit lower="${-front_wheel_travel / 2}" upper="${front_wheel_travel / 2}"
+             effort="${front_shock_eff_limit}" velocity="${shock_vel_limit}"/>
+      <dynamics damping="88" friction="0.0001"
+                spring_stiffness="10000" spring_reference="0.08"/>
+    </joint>
+    <transmission name="${lr_prefix}_${fr_prefix}_shock_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${lr_prefix}_${fr_prefix}_shock">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${lr_prefix}_${fr_prefix}_shock_act">
+        <!-- This hardwareInterface element exists for compatibility
+             with ROS Hydro. -->
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:macro name="rear_shock"
+               params="lr_prefix fr_prefix lr_reflect fr_reflect child">
+    <joint name="${lr_prefix}_${fr_prefix}_shock" type="fixed">
+      <parent link="chassis_link"/>
+      <child link="${child}"/>
+
+      <!-- ${lr_reflect * ((hex_hub_dist / 2) + lr_reflect*(front_tire_width / 2))} -->
+      <!--<origin xyz="${fr_reflect * chassis_cm_to_rear_shock}
+                   ${lr_reflect * ((hex_hub_dist / 2) )}
+      ${-chassis_height/2 + rear_shock_z_offset/2}"/>-->
+      <origin xyz="${fr_reflect * chassis_cm_to_rear_shock}
+                   ${lr_reflect * ((hex_hub_dist / 2) - 0.01)}
+                   ${-rear_shock_z_offset}"/>>
+        <!-- rpy="0 0 ${lr_reflect*degrees_180}"/> -->
+      <axis xyz="0 0 -1"/>
+      <limit lower="${-rear_wheel_travel / 2}" upper="${rear_wheel_travel / 2}"
+             effort="${rear_shock_eff_limit}" velocity="${shock_vel_limit}"/>
+      <dynamics damping="88" friction="0.0"/>
+    </joint>
+    <transmission name="${lr_prefix}_${fr_prefix}_shock_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${lr_prefix}_${fr_prefix}_shock">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${lr_prefix}_${fr_prefix}_shock_act">
+        <!-- This hardwareInterface element exists for compatibility
+             with ROS Hydro. -->
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+</robot>
