@@ -14,7 +14,6 @@
   <exec_depend>robot_state_publisher</exec_depend>
   <!--<exec_depend>ros2_launch_util</exec_depend>-->
   <exec_depend>realsense2_description</exec_depend>
-  <exec_depend>rviz2</exec_depend>
   <exec_depend>xacro</exec_depend>
   <exec_depend>traethlin_description</exec_depend>
   <exec_depend>gazebo_ros_ackermann_drive_4wd</exec_depend>
