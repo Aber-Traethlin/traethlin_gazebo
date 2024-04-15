@@ -25,6 +25,11 @@ def generate_launch_description():
   traethlin_urdf = Command(['xacro', ' ', os.path.join(pkg_traethlin_description,
                                                       'urdf',
                                                       'traethlin.urdf.xacro')])
+  use_sim_time_ = LaunchConfiguration('use_sim_time')
+  use_sim_time_launch_arg = DeclareLaunchArgument(
+    'use_sim_time',
+    default_value='false'
+  )
 
   namespace_ = LaunchConfiguration('namespace')
 
@@ -47,7 +52,8 @@ def generate_launch_description():
     name='robot_state_publisher',
     namespace=namespace_,
     parameters=[{
-      'robot_description': traethlin_urdf
+      'robot_description': traethlin_urdf,
+      'use_sim_time': use_sim_time_
       }],
     output={"both": output_dest},
     arguments=['--ros-args', '--log-level', 'WARN'],
@@ -61,12 +67,16 @@ def generate_launch_description():
     executable='joint_state_publisher',
     namespace=namespace_,
     output={"both": output_dest},
+    parameters=[{
+      'use_sim_time': use_sim_time_
+      }],
     arguments=['--ros-args', '--log-level', 'WARN'],
     respawn=True
     )
 
   return LaunchDescription([
     namespace_launch_arg,
+    use_sim_time_launch_arg,
     world_launch_arg,
 
     SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=model_path),
