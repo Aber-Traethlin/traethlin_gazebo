@@ -28,14 +28,14 @@ def generate_launch_description():
   use_sim_time_ = LaunchConfiguration('use_sim_time')
   use_sim_time_launch_arg = DeclareLaunchArgument(
     'use_sim_time',
-    default_value='false'
+    default_value='true'
   )
 
   namespace_ = LaunchConfiguration('namespace')
 
   namespace_launch_arg = DeclareLaunchArgument(
     'namespace',
-    default_value='traethlin'
+    default_value=''
   )
 
   world_file_name = LaunchConfiguration('world')
@@ -97,7 +97,7 @@ def generate_launch_description():
         name='urdf_spawner',
         output='screen',
         arguments=["-robot_namespace", namespace_,
-                   "-topic", ["/", namespace_, "/robot_description"],
+                   "-topic", [namespace_, "/robot_description"],
                    "-entity", "traethlin"]
     )
   ])
