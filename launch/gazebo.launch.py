@@ -84,6 +84,7 @@ def generate_launch_description():
 
     ExecuteProcess(
             cmd=['gazebo', '--verbose', world,
+                 '-s', 'libgazebo_ros_init.so',
                  '-s', 'libgazebo_ros_factory.so'],
             output='screen'),
 
@@ -92,12 +93,15 @@ def generate_launch_description():
     joint_state_publisher,
 
     Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        name='urdf_spawner',
-        output='screen',
-        arguments=["-robot_namespace", namespace_,
-                   "-topic", [namespace_, "/robot_description"],
-                   "-entity", "traethlin"]
+      package='gazebo_ros',
+      executable='spawn_entity.py',
+      name='urdf_spawner',
+      output='screen',
+      parameters=[{
+         'use_sim_time': use_sim_time_
+      }],
+      arguments=["-robot_namespace", namespace_,
+                 "-topic", [namespace_, "/robot_description"],
+                 "-entity", "traethlin"]
     )
   ])
