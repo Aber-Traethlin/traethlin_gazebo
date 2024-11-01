@@ -4,12 +4,15 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1/Status1
+        - /Global Options1
         - /TF1/Frames1
+        - /RGB image1
+        - /RGB image1/Topic1
+        - /Imu1/Topic1
         - /Imu1/Axes properties1
         - /Odometry1/Shape1
       Splitter Ratio: 0.47740113735198975
-    Tree Height: 318
+    Tree Height: 322
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -51,8 +54,6 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
-        box_of_goodies_link:
-          Value: true
         cam_mount_link:
           Value: true
         camera_accel_frame:
@@ -93,27 +94,29 @@ Visualization Manager:
           Value: true
         imu_link:
           Value: true
-        left_front_axle_carrier:
-          Value: true
-        left_front_wheel:
-          Value: true
         left_rear_axle_carrier:
-          Value: true
-        left_rear_wheel:
           Value: true
         left_steering_link:
           Value: true
-        map:
+        oak:
           Value: true
-        odom:
+        oak-d-base-frame:
           Value: true
-        right_front_axle_carrier:
+        oak_left_camera_frame:
           Value: true
-        right_front_wheel:
+        oak_left_camera_optical_frame:
+          Value: true
+        oak_model_origin:
+          Value: true
+        oak_rgb_camera_frame:
+          Value: true
+        oak_rgb_camera_optical_frame:
+          Value: true
+        oak_right_camera_frame:
+          Value: true
+        oak_right_camera_optical_frame:
           Value: true
         right_rear_axle_carrier:
-          Value: true
-        right_rear_wheel:
           Value: true
         right_steering_link:
           Value: true
@@ -125,59 +128,19 @@ Visualization Manager:
       Show Axes: false
       Show Names: false
       Tree:
-        base_link:
-          chassis_link:
-            box_of_goodies_link:
+        oak-d-base-frame:
+          oak:
+            oak_left_camera_frame:
+              oak_left_camera_optical_frame:
+                {}
+            oak_model_origin:
               {}
-            cam_mount_link:
-              camera_base:
-                camera_bottom_screw_frame:
-                  camera_link:
-                    camera_accel_frame:
-                      camera_accel_optical_frame:
-                        {}
-                    camera_color_frame:
-                      camera_color_optical_frame:
-                        {}
-                    camera_depth_frame:
-                      camera_depth_optical_frame:
-                        {}
-                    camera_gyro_frame:
-                      camera_gyro_optical_frame:
-                        camera_imu_optical_frame:
-                          {}
-                    camera_infra1_frame:
-                      camera_infra1_optical_frame:
-                        {}
-                    camera_infra2_frame:
-                      camera_infra2_optical_frame:
-                        {}
-            gps_link:
-              {}
-            imu_link:
-              {}
-            left_rear_axle_carrier:
-              {}
-            left_steering_link:
-              {}
-            right_rear_axle_carrier:
-              {}
-            right_steering_link:
-              {}
-            thermal_link:
-              {}
-          left_front_axle_carrier:
-            {}
-          left_front_wheel:
-            {}
-          left_rear_wheel:
-            {}
-          right_front_axle_carrier:
-            {}
-          right_front_wheel:
-            {}
-          right_rear_wheel:
-            {}
+            oak_rgb_camera_frame:
+              oak_rgb_camera_optical_frame:
+                {}
+            oak_right_camera_frame:
+              oak_right_camera_optical_frame:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -198,148 +161,43 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_link:
+        oak:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        box_of_goodies_link:
+        oak-d-base-frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        cam_mount_link:
+        oak_left_camera_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        camera_accel_frame:
+        oak_left_camera_optical_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        camera_accel_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_base:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_bottom_screw_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_color_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_color_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_depth_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_gyro_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_gyro_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_imu_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_infra1_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_infra1_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_infra2_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_infra2_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_link:
+        oak_model_origin:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        chassis_link:
+        oak_rgb_camera_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        gps_link:
+        oak_rgb_camera_optical_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        imu_link:
+        oak_right_camera_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        left_front_axle_carrier:
+        oak_right_camera_optical_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        left_front_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_rear_axle_carrier:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        left_rear_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_steering_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        right_front_axle_carrier:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        right_front_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        right_rear_axle_carrier:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        right_rear_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        right_steering_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        thermal_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Mass Properties:
         Inertia: false
         Mass: false
@@ -407,7 +265,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /camera/depth/image_rect_raw
+        Value: /oak/stereo/image_raw
       Value: true
     - Class: rviz_default_plugins/Image
       Enabled: true
@@ -420,8 +278,8 @@ Visualization Manager:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /camera/color/image_raw
+        Reliability Policy: Best Effort
+        Value: /oak/rgb/image_raw
       Value: true
     - Acceleration properties:
         Acc. vector alpha: 1
@@ -447,7 +305,7 @@ Visualization Manager:
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
-        Reliability Policy: Reliable
+        Reliability Policy: Best Effort
         Value: /imu/data
       Value: true
       fixed_frame_orientation: true
@@ -638,7 +496,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: odom
+    Fixed Frame: oak
     Frame Rate: 30
   Name: root
   Tools:
@@ -681,25 +539,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 9.713339805603027
+      Distance: 0.3307180106639862
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 2.950941801071167
-        Y: 0.06026953458786011
-        Z: 0.08470535278320312
+        X: 0.05743276700377464
+        Y: -0.003054165979847312
+        Z: 0.01272556185722351
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2697967290878296
+      Pitch: 0.3247973918914795
       Target Frame: base_link
       Value: Orbit (rviz_default_plugins)
-      Yaw: 4.7073869705200195
+      Yaw: 5.027414798736572
     Saved: ~
 Window Geometry:
   Depth image:
@@ -709,7 +567,7 @@ Window Geometry:
   Height: 1011
   Hide Left Dock: false
   Hide Right Dock: true
-  QMainWindow State: 000000ff00000000fd0000000400000000000001b00000036dfc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000007a01000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000056000001ec0000010701000003fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000160044006500700074006800200069006d0061006700650100000243000000bc0000002f01000003fb0000001200520047004200200069006d0061006700650100000300000000c30000002f01000003fb0000001a0054006800650072006d0061006c00200069006d0061006700650000000331000000920000002f01000003000000010000021b0000036dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000560000036d000000e601000003fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000005cf0000036d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000001850000036dfc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000007a01000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000056000001f00000010701000003fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000160044006500700074006800200069006d0061006700650100000247000000bc0000002f01000003fb0000001200520047004200200069006d0061006700650100000304000000bf0000002f01000003fb0000001a0054006800650072006d0061006c00200069006d0061006700650000000331000000920000002f01000003000000010000021b0000036dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000560000036d000000e601000003fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000005fa0000036d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   RGB image:
     collapsed: false
   Selection:

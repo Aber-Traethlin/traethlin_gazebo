@@ -22,9 +22,6 @@ def generate_launch_description():
       resource_path =  pkg_install_path
 #  print("------------------", resource_path);
 
-  traethlin_urdf = Command(['xacro', ' ', os.path.join(pkg_traethlin_description,
-                                                      'urdf',
-                                                      'traethlin.urdf.xacro')])
   use_sim_time_ = LaunchConfiguration('use_sim_time')
   use_sim_time_launch_arg = DeclareLaunchArgument(
     'use_sim_time',
@@ -46,6 +43,19 @@ def generate_launch_description():
 
   world = PathJoinSubstitution(['worlds', world_file_name])
 
+  camera_type_ = LaunchConfiguration('camera_type')
+  camera_type_launch_arg = DeclareLaunchArgument(
+    'camera_type',
+    default_value='oak-d-s2',
+    description="Can be 'oak-d-s2' or 'd455' (realsense)"
+  )
+
+
+  traethlin_urdf = Command(['xacro', ' camera_type:=', camera_type_, ' ',
+                            os.path.join(pkg_traethlin_description,
+                                          'urdf',
+                                          'traethlin.urdf.xacro')])
+
   robot_state_publisher = Node(
     package='robot_state_publisher',
     executable='robot_state_publisher',
@@ -57,7 +67,10 @@ def generate_launch_description():
       }],
     output={"both": output_dest},
     arguments=['--ros-args', '--log-level', 'WARN'],
-    respawn=True
+    respawn=True,
+#    remappings=[
+#        ('/oak/robot_description', '/robot_description')
+#      ]
     )
 
 
@@ -78,9 +91,11 @@ def generate_launch_description():
     namespace_launch_arg,
     use_sim_time_launch_arg,
     world_launch_arg,
+    camera_type_launch_arg,
 
     SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=model_path),
     SetEnvironmentVariable(name='GAZEBO_RESOURCE_PATH', value=resource_path),
+
 
     ExecuteProcess(
             cmd=['gazebo', '--verbose', world,
