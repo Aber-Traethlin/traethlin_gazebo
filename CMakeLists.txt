@@ -3,6 +3,8 @@ project(traethlin_gazebo)
 
 find_package(ament_cmake)
 
+find_package(depthai_descriptions)
+find_package(realsense2_description)
 find_package(traethlin_description REQUIRED)
 find_package(gazebo_ros_ackermann_drive_4wd REQUIRED)
 
