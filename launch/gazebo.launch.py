@@ -4,6 +4,7 @@ from launch import LaunchDescription, conditions
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable
 from launch_ros.actions import Node
+from launch.conditions import LaunchConfigurationEquals
 
 output_dest = "log"
 
@@ -118,5 +119,16 @@ def generate_launch_description():
       arguments=["-robot_namespace", namespace_,
                  "-topic", [namespace_, "/robot_description"],
                  "-entity", "traethlin"]
+    ),
+
+    Node(
+      package = "tf2_ros",
+      condition=LaunchConfigurationEquals('camera_type', 'oak-d-s2'),
+      executable = "static_transform_publisher",
+      parameters=[{
+        'use_sim_time': use_sim_time_
+      }],
+      arguments = ["0", "0", "0", "0", "0", "0", "camera_rgb_camera_optical_frame", "camera_depth_optical_frame"]
     )
+
   ])
