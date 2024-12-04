@@ -1,5 +1,5 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_share_directory, get_package_prefix
 from launch import LaunchDescription, conditions
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable
@@ -8,19 +8,22 @@ from launch.conditions import LaunchConfigurationEquals
 
 output_dest = "log"
 
+pkg_name = "traethlin_gazebo"
+
 def generate_launch_description():
   pkg_traethlin_description = get_package_share_directory('traethlin_description')
+  pkg_install_path_TG = get_package_prefix(pkg_name) + "/share"
+  pkg_install_path_TD = get_package_prefix('traethlin_description') + "/share"
 
-  pkg_install_path = get_package_share_directory('traethlin_gazebo')
   if 'GAZEBO_MODEL_PATH' in os.environ:
-      model_path =  os.environ['GAZEBO_MODEL_PATH'] + ':' + pkg_install_path
+      model_path =  os.environ['GAZEBO_MODEL_PATH'] + ':' + pkg_install_path_TG + ':' + pkg_install_path_TD
   else:
-      model_path =  pkg_install_path
+      model_path =  pkg_install_path_TG + ':' + pkg_install_path_TD
 #  print("------------------------------", model_path)
   if 'GAZEBO_RESOURCE_PATH' in os.environ:
-      resource_path =  os.environ['GAZEBO_RESOURCE_PATH'] + ':' + pkg_install_path
+      resource_path =  os.environ['GAZEBO_RESOURCE_PATH'] + ':' + pkg_install_path_TG + ':' + pkg_install_path_TD
   else:
-      resource_path =  pkg_install_path
+      resource_path =  pkg_install_path_TG + ':' + pkg_install_path_TD
 #  print("------------------", resource_path);
 
   use_sim_time_ = LaunchConfiguration('use_sim_time')
@@ -42,7 +45,7 @@ def generate_launch_description():
     default_value='traethlin.world'
   )
 
-  world = PathJoinSubstitution(['worlds', world_file_name])
+  world = PathJoinSubstitution([pkg_name, 'worlds', world_file_name])
 
   camera_type_ = LaunchConfiguration('camera_type')
   camera_type_launch_arg = DeclareLaunchArgument(
@@ -57,6 +60,11 @@ def generate_launch_description():
                                           'urdf',
                                           'traethlin.urdf.xacro')])
 
+  remappings=[
+    ('/camera/color/image_raw', '/oak/rgb/image_raw'),
+    ('/camera/depth/image_rect_raw', '/oak/stereo/image_raw'),
+  ]
+
   robot_state_publisher = Node(
     package='robot_state_publisher',
     executable='robot_state_publisher',
@@ -69,11 +77,8 @@ def generate_launch_description():
     output={"both": output_dest},
     arguments=['--ros-args', '--log-level', 'WARN'],
     respawn=True,
-#    remappings=[
-#        ('/oak/robot_description', '/robot_description')
-#      ]
-    )
-
+    remappings=remappings
+  )
 
   joint_state_publisher = Node(
     package='joint_state_publisher',
@@ -85,8 +90,9 @@ def generate_launch_description():
       'use_sim_time': use_sim_time_
       }],
     arguments=['--ros-args', '--log-level', 'WARN'],
+    remappings=remappings,
     respawn=True
-    )
+  )
 
   return LaunchDescription([
     namespace_launch_arg,
@@ -96,7 +102,6 @@ def generate_launch_description():
 
     SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=model_path),
     SetEnvironmentVariable(name='GAZEBO_RESOURCE_PATH', value=resource_path),
-
 
     ExecuteProcess(
             cmd=['gazebo', '--verbose', world,
@@ -116,6 +121,7 @@ def generate_launch_description():
       parameters=[{
          'use_sim_time': use_sim_time_
       }],
+      remappings=remappings,
       arguments=["-robot_namespace", namespace_,
                  "-topic", [namespace_, "/robot_description"],
                  "-entity", "traethlin"]
@@ -128,7 +134,7 @@ def generate_launch_description():
       parameters=[{
         'use_sim_time': use_sim_time_
       }],
-      arguments = ["0", "0", "0", "0", "0", "0", "camera_rgb_camera_optical_frame", "camera_depth_optical_frame"]
+      arguments = ["0", "0", "0", "0", "0", "0", "oak_rgb_camera_optical_frame", "camera_depth_optical_frame"]
     )
 
   ])
