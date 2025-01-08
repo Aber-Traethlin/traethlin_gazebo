@@ -81,7 +81,7 @@
     <!--Set the pose of the view on startup-->
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>6 9.5 5 0 0.5 -2.25</pose>
+        <pose frame=''>106 49.5 5 0 0.5 -2.25</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>

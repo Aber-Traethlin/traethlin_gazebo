@@ -124,7 +124,8 @@ def generate_launch_description():
       remappings=remappings,
       arguments=["-robot_namespace", namespace_,
                  "-topic", [namespace_, "/robot_description"],
-                 "-entity", "traethlin"]
+                 "-entity", "traethlin",
+                 "-x 100.0", "-y 40.0"]
     ),
 
     Node(
