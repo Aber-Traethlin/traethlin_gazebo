@@ -1,10 +1,25 @@
 import os
-from ament_index_python.packages import get_package_share_directory, get_package_prefix
+from ament_index_python.packages import (
+  get_package_share_directory,
+  get_package_prefix
+  )
 from launch import LaunchDescription, conditions
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, SetEnvironmentVariable
+from launch.substitutions import (
+  Command,
+  LaunchConfiguration,
+  PathJoinSubstitution,
+  EqualsSubstitution
+  )
+from launch.actions import (
+  DeclareLaunchArgument,
+  ExecuteProcess,
+  SetEnvironmentVariable,
+  IncludeLaunchDescription
+  )
 from launch_ros.actions import Node
-from launch.conditions import LaunchConfigurationEquals
+from launch.conditions import LaunchConfigurationEquals, IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ros_gz_bridge.actions import RosGzBridge
 
 output_dest = "log"
 
@@ -13,18 +28,16 @@ pkg_name = "traethlin_gazebo"
 def generate_launch_description():
   pkg_traethlin_description = get_package_share_directory('traethlin_description')
   pkg_install_path_TG = get_package_prefix(pkg_name) + "/share"
+  pkg_install_path_TG_worlds = pkg_install_path_TG + "/" + pkg_name + "/worlds"
   pkg_install_path_TD = get_package_prefix('traethlin_description') + "/share"
 
-  if 'GAZEBO_MODEL_PATH' in os.environ:
-      model_path =  os.environ['GAZEBO_MODEL_PATH'] + ':' + pkg_install_path_TG + ':' + pkg_install_path_TD
+  if 'GZ_SIM_RESOURCE_PATH' in os.environ:
+      resource_path =  os.environ['GZ_SIM_RESOURCE_PATH'] + ':' + pkg_install_path_TG + ':' + pkg_install_path_TD + ':' + pkg_install_path_TG_worlds
   else:
-      model_path =  pkg_install_path_TG + ':' + pkg_install_path_TD
-#  print("------------------------------", model_path)
-  if 'GAZEBO_RESOURCE_PATH' in os.environ:
-      resource_path =  os.environ['GAZEBO_RESOURCE_PATH'] + ':' + pkg_install_path_TG + ':' + pkg_install_path_TD
-  else:
-      resource_path =  pkg_install_path_TG + ':' + pkg_install_path_TD
+      resource_path =  pkg_install_path_TG + ':' + pkg_install_path_TD + ':' + pkg_install_path_TG_worlds
 #  print("------------------", resource_path);
+
+  config = os.path.join(pkg_install_path_TG, pkg_name, 'config', 'traethlin.yaml')
 
   use_sim_time_ = LaunchConfiguration('use_sim_time')
   use_sim_time_launch_arg = DeclareLaunchArgument(
@@ -42,7 +55,7 @@ def generate_launch_description():
   world_file_name = LaunchConfiguration('world')
   world_launch_arg = DeclareLaunchArgument(
     'world',
-    default_value='traethlin.world'
+    default_value='traethlin.sdf'
   )
 
   world = PathJoinSubstitution([pkg_name, 'worlds', world_file_name])
@@ -94,43 +107,64 @@ def generate_launch_description():
     respawn=True
   )
 
+  gz_sim = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      [
+        os.path.join(
+          get_package_share_directory("ros_gz_sim"),
+          "launch",
+          "gz_sim.launch.py",
+        )
+      ]
+    ),
+    launch_arguments={"gz_args": [" -r -v 4 ", world]}.items(),
+  )
+
+  # Spawn the robot in Gazebo
+  spawn_entity = Node(
+    package="ros_gz_sim",
+    executable="create",
+    arguments=[
+      "-name",
+      "traethlin",
+      "-topic",
+      "/robot_description",
+      "-x",
+      "0.0",
+      "-y",
+      "0.0",
+      "-z",
+      "2.0",
+    ],
+    output="screen",
+  )
+
+  # Gz - ROS Bridge
+  ros_gz_bridge = RosGzBridge(
+        bridge_name='ros_gz_bridge',
+        config_file=config,
+    )
+
   return LaunchDescription([
     namespace_launch_arg,
     use_sim_time_launch_arg,
     world_launch_arg,
     camera_type_launch_arg,
 
-    SetEnvironmentVariable(name='GAZEBO_MODEL_PATH', value=model_path),
-    SetEnvironmentVariable(name='GAZEBO_RESOURCE_PATH', value=resource_path),
-
-    ExecuteProcess(
-            cmd=['gazebo', '--verbose', world,
-                 '-s', 'libgazebo_ros_init.so',
-                 '-s', 'libgazebo_ros_factory.so'],
-            output='screen'),
+    SetEnvironmentVariable(name='GZ_SIM_RESOURCE_PATH', value=resource_path),
 
     robot_state_publisher,
 
     joint_state_publisher,
 
-    Node(
-      package='gazebo_ros',
-      executable='spawn_entity.py',
-      name='urdf_spawner',
-      output='screen',
-      parameters=[{
-         'use_sim_time': use_sim_time_
-      }],
-      remappings=remappings,
-      arguments=["-robot_namespace", namespace_,
-                 "-topic", [namespace_, "/robot_description"],
-                 "-entity", "traethlin",
-                 "-x 100.0", "-y 40.0"]
-    ),
+    # Gazebo
+    gz_sim,
+    spawn_entity,
+    ros_gz_bridge,
 
     Node(
       package = "tf2_ros",
-      condition=LaunchConfigurationEquals('camera_type', 'oak-d-s2'),
+      condition=IfCondition(EqualsSubstitution(camera_type_, 'oak-d-s2')),
       executable = "static_transform_publisher",
       parameters=[{
         'use_sim_time': use_sim_time_
