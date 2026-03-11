@@ -19,7 +19,15 @@ from launch.actions import (
 from launch_ros.actions import Node
 from launch.conditions import LaunchConfigurationEquals, IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from ros_gz_bridge.actions import RosGzBridge
+
+ros_distro = os.environ['ROS_DISTRO']
+if ros_distro == "jazzy":
+  from ros_gz_bridge.actions import RosGzBridge
+## Nothing to do for humble...
+
+import subprocess # To find gazebo version
+import shutil # To find which gazebo executable is around...
+import sys # For exit.
 
 output_dest = "log"
 
@@ -38,6 +46,7 @@ def generate_launch_description():
 #  print("------------------", resource_path);
 
   config = os.path.join(pkg_install_path_TG, pkg_name, 'config', 'traethlin.yaml')
+  config_ign = os.path.join(pkg_install_path_TG, pkg_name, 'config', 'traethlin_ign.yaml')
 
   use_sim_time_ = LaunchConfiguration('use_sim_time')
   use_sim_time_launch_arg = DeclareLaunchArgument(
@@ -67,9 +76,34 @@ def generate_launch_description():
     description="Can be 'oak-d-s2' or 'd455' (realsense)"
   )
 
+  gzCommand = ""
+  gzPath = shutil.which("ign")
+  if gzPath is None:
+      gzPath = shutil.which("gz")
+      if gzPath is None:
+        sys.exit("No gazebo executable, bailing out.")
+      else:
+        gzCommand = "sim"
+  else:
+    gzCommand = "gazebo"
+  print(f"found gazebo: {gzPath} {gzCommand}")
 
-  traethlin_urdf = Command(['xacro', ' camera_type:=', camera_type_, ' ',
-                            os.path.join(pkg_traethlin_description,
+  gzVersion = subprocess.run(
+    [gzPath, gzCommand, "--versions"],
+    capture_output = True, # Python >= 3.7 only
+    text = True # Python >= 3.7 only
+  )
+  gzVersion.stdout = gzVersion.stdout.strip('\n')
+#  print(gzVersion.stdout)
+  gzVersions = gzVersion.stdout.split(".")
+#  print(gzVersions)
+  gzVersionMajor = gzVersions[0]
+#  gzVersionMinor = gzVersions[1]
+#  print("Major version:", gzVersionMajor, "minor version", gzVersionMinor)
+
+  traethlin_urdf = Command(['xacro', ' camera_type:=', camera_type_,
+                            ' gazebo_major_version:=' , gzVersionMajor,
+                            ' ', os.path.join(pkg_traethlin_description,
                                           'urdf',
                                           'traethlin.urdf.xacro')])
 
@@ -140,9 +174,16 @@ def generate_launch_description():
   )
 
   # Gz - ROS Bridge
-  ros_gz_bridge = RosGzBridge(
+  if ros_distro == "jazzy":
+    ros_gz_bridge = RosGzBridge(
         bridge_name='ros_gz_bridge',
         config_file=config,
+    )
+  elif ros_distro == "humble":
+    ros_gz_bridge = Node(
+      package='ros_gz_bridge',
+      executable='parameter_bridge',
+      parameters=[{'config_file': config}],
     )
 
   return LaunchDescription([
