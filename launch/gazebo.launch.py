@@ -164,9 +164,9 @@ def generate_launch_description():
       "-topic",
       "/robot_description",
       "-x",
-      "0.0",
+      "-5.0", #-20
       "-y",
-      "0.0",
+      "5.0", #13
       "-z",
       "2.0",
     ],
@@ -186,6 +186,13 @@ def generate_launch_description():
       parameters=[{'config_file': config}],
     )
 
+  # We inject covariance values that are not zero in the GPS messages for the
+  # EKF to be happy.
+  inject_covariance = Node(
+     package='traethlin_gazebo',
+     executable='inject_navsatfix_covariance_node'
+  )
+
   return LaunchDescription([
     namespace_launch_arg,
     use_sim_time_launch_arg,
@@ -202,6 +209,7 @@ def generate_launch_description():
     gz_sim,
     spawn_entity,
     ros_gz_bridge,
+    inject_covariance,
 
     Node(
       package = "tf2_ros",

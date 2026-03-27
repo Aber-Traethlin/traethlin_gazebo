@@ -74,7 +74,8 @@
   lazy: true
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/gps/fix"
+- ros_topic_name: "/gps/fix_raw"
+  gz_topic_name: "/gps/fix"
   ros_type_name: "sensor_msgs/msg/NavSatFix"
   gz_type_name: "gz.msgs.NavSat"
   direction: GZ_TO_ROS
