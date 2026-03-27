@@ -36,8 +36,8 @@
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
-      <latitude_deg>52.416395</latitude_deg>
-      <longitude_deg>-4.064835</longitude_deg>
+      <latitude_deg>52.41516780808094</latitude_deg>
+      <longitude_deg>-4.065390697470451</longitude_deg>
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
@@ -49,7 +49,7 @@
         <geometry>
           <heightmap>
             <uri>model://materials/textures/heightmap.png</uri>
-            <size>100 100 15</size>
+            <size>100 100 10</size>
             <pos>0 0 0</pos>
           </heightmap>
         </geometry>
@@ -73,15 +73,15 @@
               <size>20</size>
             </texture>
             <blend>
-              <min_height>3</min_height>
+              <min_height>1</min_height>
               <fade_dist>2</fade_dist>
             </blend>
             <blend>
-              <min_height>6</min_height>
+              <min_height>5</min_height>
               <fade_dist>2</fade_dist>
             </blend>
             <uri>model://materials/textures/heightmap.png</uri>
-            <size>100 100 15</size>
+            <size>100 100 10</size>
             <pos>0 0 0</pos>
           </heightmap>
         </geometry>
