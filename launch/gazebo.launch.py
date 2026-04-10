@@ -55,7 +55,6 @@ def generate_launch_description():
   )
 
   namespace_ = LaunchConfiguration('namespace')
-
   namespace_launch_arg = DeclareLaunchArgument(
     'namespace',
     default_value=''
@@ -74,6 +73,20 @@ def generate_launch_description():
     'camera_type',
     default_value='oak-d-s2',
     description="Can be 'oak-d-s2' or 'd455' (realsense)"
+  )
+
+  robot_x_ = LaunchConfiguration("robot_x")
+  robot_x_launch_arg = DeclareLaunchArgument(
+    'robot_x',
+    default_value='0.0',
+    description="X coordinate of the robot when launching"
+  )
+
+  robot_y_ = LaunchConfiguration("robot_y")
+  robot_y_launch_arg = DeclareLaunchArgument(
+    'robot_y',
+    default_value='0.0',
+    description="Y coordinate of the robot when launching"
   )
 
   gzCommand = ""
@@ -163,12 +176,12 @@ def generate_launch_description():
       "traethlin",
       "-topic",
       "/robot_description",
-      "-x",
-      "-5.0", #-20
-      "-y",
-      "5.0", #13
-      "-z",
-      "2.0",
+      "-x", robot_x_, # 9.992638469324447
+      "-y", robot_y_, # 15.239376132376492
+      "-z", "1.5",
+      "-P", "0.0",
+      "-R", "0.0",
+      "-Y", "0" # 90deg, 1.57rad
     ],
     output="screen",
   )
@@ -198,6 +211,8 @@ def generate_launch_description():
     use_sim_time_launch_arg,
     world_launch_arg,
     camera_type_launch_arg,
+    robot_x_launch_arg,
+    robot_y_launch_arg,
 
     SetEnvironmentVariable(name='GZ_SIM_RESOURCE_PATH', value=resource_path),
 
