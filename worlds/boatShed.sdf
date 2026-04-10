@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding='ASCII'?>
+<sdf version='1.7'>
+  <world name='boat_shed_world'>
+    <physics type="ode">
+      <max_step_size>0.003</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin name='ignition::gazebo::systems::Physics' filename='libignition-gazebo-physics-system.so'/>
+    <plugin name="ignition::gazebo::systems::Sensors" filename="libignition-gazebo-sensors-system.so">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin name='ignition::gazebo::systems::UserCommands' filename='libignition-gazebo-user-commands-system.so'/>
+    <plugin name='ignition::gazebo::systems::SceneBroadcaster' filename='libignition-gazebo-scene-broadcaster-system.so'/>
+    <plugin name="ignition::gazebo::systems::Imu" filename="libignition-gazebo-imu-system.so"/>
+    <plugin name="ignition::gazebo::systems::NavSat" filename="libignition-gazebo-navsat-system.so"/>
+
+    <gui fullscreen="0">
+    </gui>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 100 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.0 0.0 0.0 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>52.41512220188861</latitude_deg>
+      <longitude_deg>-4.065463116130042</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
+    <model name="boat_shed_landscape">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <heightmap>
+              <uri>model://materials/textures/boatShedHeight.png</uri>
+              <size>57.2 75 1.5</size>
+<!--              <size>28.6 37.5 1.5</size>-->
+<!--              <pos>14.3 18.75 0</pos>-->
+            </heightmap>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <heightmap>
+              <texture>
+                <diffuse>file://materials/textures/dirt_diffusespecular.png</diffuse>
+                <normal>file://materials/textures/flat_normal.png</normal>
+                <size>5</size>
+              </texture>
+              <uri>model://materials/textures/boatShedHeight.png</uri>
+              <size>57.2 75 1.5</size>
+<!--              <size>28.6 37.5 1.5</size>-->
+<!--              <pos>14.3 18.75 0</pos>-->
+            </heightmap>
+          </geometry>
+          <plugin
+            filename="ignition-gazebo-thermal-system"
+            name="gz::sim::systems::Thermal">
+            <temperature>293.15</temperature>
+          </plugin>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>
