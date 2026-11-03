@@ -14,7 +14,8 @@ from launch.actions import (
   DeclareLaunchArgument,
   ExecuteProcess,
   SetEnvironmentVariable,
-  IncludeLaunchDescription
+  IncludeLaunchDescription,
+  OpaqueFunction
   )
 from launch_ros.actions import Node
 from launch.conditions import LaunchConfigurationEquals, IfCondition
@@ -28,10 +29,62 @@ if ros_distro == "jazzy":
 import subprocess # To find gazebo version
 import shutil # To find which gazebo executable is around...
 import sys # For exit.
+from datetime import datetime, timezone # For the initial simulation time.
 
 output_dest = "log"
 
 pkg_name = "traethlin_gazebo"
+
+def initial_sim_time_seconds(initial_time):
+  """
+  Converts the initial_time launch argument to seconds since the epoch.
+
+  Accepts '' (Gazebo's default, i.e. 0), 'now', a GMT date and time as
+  'YYYY-MM-DD HH:MM[:SS]' (a 'T' instead of the space is fine too), or a
+  number of seconds since the epoch.  Returns None for ''.
+  """
+  initial_time = initial_time.strip()
+  if initial_time == '':
+    return None
+  if initial_time == 'now':
+    return int(datetime.now(timezone.utc).timestamp())
+  try:
+    return int(float(initial_time))
+  except ValueError:
+    pass
+  for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d'):
+    try:
+      date = datetime.strptime(initial_time.replace('T', ' '), fmt)
+      return int(date.replace(tzinfo=timezone.utc).timestamp())
+    except ValueError:
+      pass
+  sys.exit(f"Invalid initial_time '{initial_time}': use 'now', "
+           "'YYYY-MM-DD HH:MM[:SS]' (GMT) or seconds since the epoch.")
+
+def launch_gz_sim(context, world):
+  """
+  Starts Gazebo, with the initial simulation time if one is given.
+  """
+  gz_args = " -r -v 4 "
+  seconds = initial_sim_time_seconds(
+    LaunchConfiguration('initial_time').perform(context))
+  if seconds is not None:
+    print(f"Gazebo initial simulation time: {seconds} "
+          f"({datetime.fromtimestamp(seconds, timezone.utc):%Y-%m-%d %H:%M:%S} GMT)")
+    gz_args += f"--initial-sim-time {seconds} "
+
+  return [IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+      [
+        os.path.join(
+          get_package_share_directory("ros_gz_sim"),
+          "launch",
+          "gz_sim.launch.py",
+        )
+      ]
+    ),
+    launch_arguments={"gz_args": [gz_args, world]}.items(),
+  )]
 
 def generate_launch_description():
   pkg_traethlin_description = get_package_share_directory('traethlin_description')
@@ -67,6 +120,13 @@ def generate_launch_description():
   )
 
   world = PathJoinSubstitution([pkg_name, 'worlds', world_file_name])
+
+  initial_time_launch_arg = DeclareLaunchArgument(
+    'initial_time',
+    default_value='',
+    description="Initial simulation time: 'now', 'YYYY-MM-DD HH:MM[:SS]' (GMT) "
+                "or seconds since the epoch.  Empty starts at 0 (1970-01-01)"
+  )
 
   camera_type_ = LaunchConfiguration('camera_type')
   camera_type_launch_arg = DeclareLaunchArgument(
@@ -154,18 +214,7 @@ def generate_launch_description():
     respawn=True
   )
 
-  gz_sim = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      [
-        os.path.join(
-          get_package_share_directory("ros_gz_sim"),
-          "launch",
-          "gz_sim.launch.py",
-        )
-      ]
-    ),
-    launch_arguments={"gz_args": [" -r -v 4 ", world]}.items(),
-  )
+  gz_sim = OpaqueFunction(function=launch_gz_sim, args=[world])
 
   # Spawn the robot in Gazebo
   spawn_entity = Node(
@@ -210,6 +259,7 @@ def generate_launch_description():
     namespace_launch_arg,
     use_sim_time_launch_arg,
     world_launch_arg,
+    initial_time_launch_arg,
     camera_type_launch_arg,
     robot_x_launch_arg,
     robot_y_launch_arg,
@@ -233,7 +283,7 @@ def generate_launch_description():
       parameters=[{
         'use_sim_time': use_sim_time_
       }],
-      arguments = ["0", "0", "0", "0", "0", "0", "oak_rgb_camera_optical_frame", "camera_depth_optical_frame"]
+      arguments = ["0", "0", "0", "0", "0", "0", "camera_rgb_camera_optical_frame", "camera_depth_optical_frame"]
     )
 
   ])
